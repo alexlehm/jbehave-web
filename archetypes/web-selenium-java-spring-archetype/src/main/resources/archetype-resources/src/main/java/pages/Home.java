@@ -3,11 +3,15 @@
 #set( $symbol_escape = '\' )
 package ${package}.pages;
 
-import org.jbehave.web.selenium.WebDriverPage;
+import org.jbehave.web.selenium.FluentWebDriverPage;
 import org.jbehave.web.selenium.WebDriverProvider;
-import org.openqa.selenium.By;
 
-public class Home extends WebDriverPage {
+import static org.openqa.selenium.By.className;
+import static org.openqa.selenium.By.id;
+import static org.openqa.selenium.By.linkText;
+import static org.openqa.selenium.By.xpath;
+
+public class Home extends FluentWebDriverPage {
 
     public Home(WebDriverProvider webDriverProvider) {
         super(webDriverProvider);
@@ -19,19 +23,18 @@ public class Home extends WebDriverPage {
 
     public void go(String section) {
         go();
-        findElement(By.xpath("//a[@title = '" + section + "']")).click();
+        link(xpath("@title = '" + section + "'")).click();
     }
 
     public void search(String thing) {
-        findElement(By.id("search-facet")).click();
-        findElement(By.className("all")).click();
-        findElement(By.id("search-query")).sendKeys(thing);
-        findElement(By.id("search_submit")).click();
+//        within(secs(100)).title().shouldBe("kittens");
+        div(id("search-facet")).click();
+        li(className("all")).click();
+        input(id("search-query")).sendKeys(thing);
+        button(id("search_submit")).click();
     }
 
     public void goToBuySection() {
-        findElement(By.linkText("Buy")).click();
+        link(linkText("Buy")).click();
     }
-    
-    
 }

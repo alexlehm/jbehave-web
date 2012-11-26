@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>${groupId}</groupId>
-  <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
+  <artifactId>${artifactId}</artifactId>
   <name>Etsy.com Stories with Groovy and Pico</name>
   <description>JBehave stories verifying functionality of Etsy.com using Groovy and Pico</description>
 
@@ -11,12 +11,23 @@
     <jbehave.core.version>$jbehaveCoreVersion</jbehave.core.version>
     <jbehave.web.version>$jbehaveWebVersion</jbehave.web.version>
     <jbehave.site.version>$jbehaveSiteVersion</jbehave.site.version>
-    <selenium.version>2.16.1</selenium.version>
+    <fluent.selenium.version>1.5.1</fluent.selenium.version>
+    <selenium.version>2.21.0</selenium.version>
     <gmaven.version>1.3</gmaven.version>
-    <groovy.version>1.8.4</groovy.version>
+    <groovy.version>1.8.6</groovy.version>
+    <ignore.failures>true</ignore.failures>
+    <threads>1</threads>
+    <storyTimeoutInSecs>250</storyTimeoutInSecs>
+    <skip>false</skip>
+    <stories>**/EtsyDotComStories.java</stories>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.jbehave</groupId>
+      <artifactId>jbehave-core</artifactId>
+      <version>${jbehave.core.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.jbehave</groupId>
       <artifactId>jbehave-core</artifactId>
@@ -36,6 +47,10 @@
       <version>${jbehave.web.version}</version>
       <exclusions>
         <exclusion>
+          <groupId>org.jbehave</groupId>
+          <artifactId>jbehave-core</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.seleniumhq.selenium</groupId>
           <artifactId>selenium-java</artifactId>
         </exclusion>
@@ -44,7 +59,7 @@
     <dependency>
       <groupId>org.seleniumhq.selenium.fluent</groupId>
       <artifactId>fluent-selenium</artifactId>
-      <version>1.0</version>
+      <version>${fluent.selenium.version}</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>
@@ -59,6 +74,22 @@
       <version>${selenium.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.github.tanob</groupId>
+      <artifactId>groobe</artifactId>
+      <version>1.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-all</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.picocontainer</groupId>
+      <artifactId>picocontainer</artifactId>
+      <version>2.14.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.jbehave</groupId>
       <artifactId>jbehave-pico</artifactId>
       <version>${jbehave.core.version}</version>
@@ -70,19 +101,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.picocontainer</groupId>
-      <artifactId>picocontainer</artifactId>
-      <version>2.14.1</version>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
       <version>${groovy.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.tanob</groupId>
-      <artifactId>groobe</artifactId>
-      <version>1.1</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.geb</groupId>
@@ -144,6 +165,33 @@
           <configuration>
             <lifecycleMappingMetadata>
               <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <versionRange>[2.1,)</versionRange>
+                    <goals>
+                      <goal>copy</goal>
+                      <goal>unpack</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.jbehave</groupId>
+                    <artifactId>jbehave-maven-plugin</artifactId>
+                    <versionRange>[${jbehave.core.version},)</versionRange>
+                    <goals>
+                      <goal>unpack-view-resources</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
                 <pluginExecution>
                   <pluginExecutionFilter>
                     <groupId>org.codehaus.gmaven</groupId>
@@ -237,6 +285,13 @@
         <groupId>org.jbehave</groupId>
         <artifactId>jbehave-maven-plugin</artifactId>
         <version>${jbehave.core.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>1.3.1</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>unpack-view-resources</id>
@@ -250,19 +305,48 @@
             <phase>integration-test</phase>
             <configuration>
               <includes>
-                <include>**/*Stories*</include>
+                <include>${stories}</include>
               </includes>
               <excludes />
-              <generateViewAfterStories>true</generateViewAfterStories>
-              <ignoreFailureInStories>true</ignoreFailureInStories>
-              <ignoreFailureInView>true</ignoreFailureInView>
+              <ignoreFailureInStories>${ignore.failures}</ignoreFailureInStories>
+              <ignoreFailureInView>${ignore.failures}</ignoreFailureInView>
+              <threads>${threads}</threads>
+              <skip>${skip}</skip>
+              <storyTimeoutInSecs>${storyTimeoutInSecs}</storyTimeoutInSecs>
               <metaFilters>
-                <metaFilter></metaFilter>
+                <metaFilter>${meta.filter}</metaFilter>
               </metaFilters>
-              <verboseFailures>true</verboseFailures>
             </configuration>
             <goals>
               <goal>run-stories-as-embeddables</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>map-stories</id>
+            <phase>integration-test</phase>
+            <configuration>
+              <includes>
+                <include>**/*StoryMaps.java</include>
+              </includes>
+              <metaFilters>
+                <metaFilter>+category *</metaFilter>
+                <metaFilter>+color *</metaFilter>
+              </metaFilters>
+            </configuration>
+            <goals>
+              <goal>map-stories-as-embeddables</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report-stepdocs</id>
+            <phase>integration-test</phase>
+            <configuration>
+              <includes>
+                <include>${stories}</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>report-stepdocs-as-embeddables</goal>
             </goals>
           </execution>
         </executions>
@@ -283,5 +367,32 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>stable</id>
+      <properties>
+        <jbehave.core.version>$jbehaveCoreVersion</jbehave.core.version>
+        <jbehave.web.version>$jbehaveWebVersion</jbehave.web.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>saucelabs</id>
+      <activation>
+        <property>
+          <name>SAUCE_USERNAME</name>
+        </property>
+      </activation>
+      <properties>
+        <threads>5</threads>
+      </properties>
+    </profile>
+    <profile>
+      <id>fail-fast</id>
+      <properties>
+        <ignore.failures>false</ignore.failures>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

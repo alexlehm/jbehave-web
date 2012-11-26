@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jbehave.web.examples</groupId>
     <artifactId>jbehave-web-examples</artifactId>
-    <version>3.5-SNAPSHOT</version>
+    <version>3.6-SNAPSHOT</version>
   </parent>
   <artifactId>jbehave-web-trader-webdriver</artifactId>
   <name>JBehave Web Trader WebDriver Stories</name>
@@ -106,13 +106,20 @@
               <includes>
                 <include>**/*Stories.java</include>
               </includes>
-              <embedderClass>org.jbehave.web.examples.trader.webdriver.TraderWebStories$SameThreadEmbedder</embedderClass>
+              <executorsClass>org.jbehave.core.embedder.executors.SameThreadExecutors</executorsClass>
             </configuration>
             <goals>
               <goal>run-stories-as-embeddables</goal>
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>11.0.1</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
