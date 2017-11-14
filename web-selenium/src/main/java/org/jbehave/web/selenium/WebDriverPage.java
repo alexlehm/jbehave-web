@@ -3,12 +3,13 @@ package org.jbehave.web.selenium;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.HasCapabilities;
-import org.openqa.selenium.HasInputDevices;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keyboard;
-import org.openqa.selenium.Mouse;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.interactions.HasInputDevices;
+import org.openqa.selenium.interactions.Keyboard;
+import org.openqa.selenium.interactions.Mouse;
 
 import java.util.List;
 import java.util.Set;
@@ -27,11 +28,14 @@ public abstract class WebDriverPage implements WebDriver, HasInputDevices, Javas
         this.driverProvider = driverProvider;
     }
 
-
     protected WebDriverProvider getDriverProvider() {
         return driverProvider;
     }
-
+    
+    protected Actions getActions(){
+        return new Actions(driverProvider.get());
+    }
+    
     public void get(String url) {
         driverProvider.get().get(url);
     }
@@ -44,38 +48,31 @@ public abstract class WebDriverPage implements WebDriver, HasInputDevices, Javas
         return driverProvider.get().getTitle();
     }
 
-    public List<WebElement> findElements(By by) {
-        
+    public List<WebElement> findElements(By by) {        
         return driverProvider.get().findElements(by);
     }
 
     public WebElement findElement(By by) {
-        
         return driverProvider.get().findElement(by);
     }
 
-    public String getPageSource() {
-        
+    public String getPageSource() {        
         return driverProvider.get().getPageSource();
     }
 
     public void close() {
-        
         driverProvider.get().close();
     }
 
     public void quit() {
-        
         driverProvider.get().quit();
     }
 
     public Set<String> getWindowHandles() {
-        
         return driverProvider.get().getWindowHandles();
     }
 
     public String getWindowHandle() {
-        
         return driverProvider.get().getWindowHandle();
     }
 

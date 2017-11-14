@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jbehave.web.examples</groupId>
     <artifactId>jbehave-web-examples</artifactId>
-    <version>3.6-SNAPSHOT</version>
+    <version>4.0-SNAPSHOT</version>
   </parent>
   <artifactId>jbehave-web-trader-webdriver</artifactId>
   <name>JBehave Web Trader WebDriver Stories</name>
@@ -62,13 +62,14 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.mortbay.jetty</groupId>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <configuration>
-          <webApp>${project.build.directory}/jbehave-web-trader-runner.war</webApp>
-          <webAppConfig>
+          <war>${project.build.directory}/jbehave-web-trader-runner.war</war>
+          <daemon>true</daemon>
+          <webApp>
             <contextPath>/trader-runner</contextPath>
-          </webAppConfig>
+          </webApp>
         </configuration>
         <executions>
           <execution>
@@ -79,7 +80,6 @@
             </goals>
             <configuration>
               <scanIntervalSeconds>0</scanIntervalSeconds>
-              <daemon>true</daemon>
             </configuration>
           </execution>
           <execution>

@@ -1,26 +1,24 @@
 package org.jbehave.web.selenium;
 
-import java.net.MalformedURLException;
+import static java.lang.Boolean.parseBoolean;
+
 import java.util.Locale;
 
-import org.openqa.selenium.ScreenOrientation;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.android.AndroidDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-
-import static java.lang.Boolean.parseBoolean;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 
 /**
  * Provides WebDriver instances based on system property "browser":
  * <ul>
- * <li>"android": {@link AndroidDriver}</li>
  * <li>"chrome": {@link ChromeDriver}</li>
  * <li>"firefox": {@link FirefoxDriver}</li>
  * <li>"htmlunit": {@link HtmlUnitDriver}</li>
  * <li>"ie": {@link InternetExplorerDriver}</li>
+ * <li>"phantomjs": {@link PhantomJSDriver}</li>
  * </ul>
  * Property values are case-insensitive and defaults to "firefox" if no
  * "browser" system property is found.
@@ -37,7 +35,7 @@ import static java.lang.Boolean.parseBoolean;
 public class PropertyWebDriverProvider extends DelegatingWebDriverProvider {
 
     public enum Browser {
-        ANDROID, CHROME, FIREFOX, HTMLUNIT, IE
+        ANDROID, CHROME, FIREFOX, HTMLUNIT, IE, PHANTOMJS
     }
 
     public void initialize() {
@@ -58,20 +56,13 @@ public class PropertyWebDriverProvider extends DelegatingWebDriverProvider {
             return createHtmlUnitDriver();
         case IE:
             return createInternetExplorerDriver();
+        case PHANTOMJS:
+            return createPhantomJSDriver();
         }
     }
 
     protected WebDriver createAndroidDriver() {
-        try {
-            String url = System.getProperty("webdriver.android.url", "http://localhost:8080/hub");
-            ScreenOrientation screenOrientation = ScreenOrientation.valueOf(System.getProperty(
-                    "webdriver.android.screenOrientation", "portrait").toUpperCase(usingLocale()));
-            AndroidDriver driver = new AndroidDriver(url);
-            driver.rotate(screenOrientation);
-            return driver;
-        } catch (MalformedURLException e) {
-            throw new UnsupportedOperationException(e);
-        }
+    	throw new UnsupportedOperationException("AndroidDriver no longer supported by Selenium.  Use Selendroid instead.");
     }
 
     protected ChromeDriver createChromeDriver() {
@@ -92,7 +83,11 @@ public class PropertyWebDriverProvider extends DelegatingWebDriverProvider {
     protected InternetExplorerDriver createInternetExplorerDriver() {
         return new InternetExplorerDriver();
     }
-    
+
+    protected WebDriver createPhantomJSDriver() {
+        return new PhantomJSDriver();
+    }
+
     protected Locale usingLocale() {
         return Locale.getDefault();
     }

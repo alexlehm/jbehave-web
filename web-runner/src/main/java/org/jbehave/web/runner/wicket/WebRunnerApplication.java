@@ -9,7 +9,12 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.jbehave.core.configuration.Configuration;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.embedder.Embedder;
-import org.jbehave.core.embedder.StoryRunner;
+import org.jbehave.core.embedder.StoryManager;
+import org.jbehave.core.io.ResourceLoader;
+import org.jbehave.core.io.rest.RESTClient.Type;
+import org.jbehave.core.io.rest.ResourceIndexer;
+import org.jbehave.core.io.rest.redmine.IndexFromRedmine;
+import org.jbehave.core.io.rest.redmine.LoadFromRedmine;
 import org.jbehave.core.steps.CandidateSteps;
 import org.jbehave.core.steps.InjectableStepsFactory;
 import org.jbehave.core.steps.InstanceStepsFactory;
@@ -23,8 +28,9 @@ import org.jbehave.web.runner.wicket.pages.DataFiles;
 import org.jbehave.web.runner.wicket.pages.FindSteps;
 import org.jbehave.web.runner.wicket.pages.Home;
 import org.jbehave.web.runner.wicket.pages.RunStory;
-import org.jbehave.web.runner.wicket.pages.ViewStory;
 import org.jbehave.web.runner.wicket.pages.SubmitStory;
+import org.jbehave.web.runner.wicket.pages.ViewStory;
+import org.jbehave.web.runner.wicket.pages.WikiTree;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -41,6 +47,7 @@ public class WebRunnerApplication extends WebApplication {
         mountPage("/story/run", RunStory.class);
         mountPage("/story/submit", SubmitStory.class);
         mountPage("/story/view", ViewStory.class);
+        mountPage("/wiki/tree", WikiTree.class);
     }
 
     private Module[] modules() {
@@ -53,6 +60,9 @@ public class WebRunnerApplication extends WebApplication {
         protected void configure() {
             bind(Embedder.class).toInstance(embedder());
             bind(FileManager.class).toInstance(fileManager());
+            bind(ResourceIndexer.class).toInstance(resourceIndexer());
+            bind(ResourceLoader.class).toInstance(resourceLoader());
+            bind(WikiConfigurer.class).toInstance(wikiConfiguration());
         }
 
     }
@@ -64,8 +74,23 @@ public class WebRunnerApplication extends WebApplication {
         return embedder;
     }
 
-    protected StoryRunner storyRunner() {
-        return embedder().storyRunner();
+
+	protected WikiConfiguration wikiConfiguration() {
+		return new WikiConfiguration("http://demo.redmine.org/projects/jbehave-rest/wiki");
+	}
+
+	protected ResourceIndexer resourceIndexer() {
+		WikiConfiguration configuration = wikiConfiguration();
+		return new IndexFromRedmine(configuration.getUsername(), configuration.getPassword());
+	}
+
+    protected ResourceLoader resourceLoader() {
+		WikiConfiguration configuration = wikiConfiguration();
+		return new LoadFromRedmine(Type.JSON, configuration.getUsername(), configuration.getPassword());
+	}
+    
+	protected StoryManager storyManager() {
+        return embedder().storyManager();
     }
 
     protected Configuration configuration() {
@@ -99,5 +124,4 @@ public class WebRunnerApplication extends WebApplication {
     public Class<Home> getHomePage() {
         return Home.class;
     }
-
 }
